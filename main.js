@@ -15,10 +15,16 @@ let alugueis = []
 app.post("/livro",(req,res) => {
     const novoLivro =  {id: livros.length + 1, ...req.body}
     const arrayNovoLivro = Object.values(novoLivro)
+
+    
+    if(!req.body || arrayNovoLivro.length === 0){
+      return res.status(400).send("A requisição estar vazia!");
+    }
     
     if(isNaN(novoLivro.ano) || arrayNovoLivro.length !== 5){
       res.status(400).send(`Resposta invalida!`)
     }
+ 
     for (let valor of arrayNovoLivro){
       if(!valor){
         res.status(400).send(`Resposta invalida!`)
@@ -74,6 +80,10 @@ app.put("/livro/:id", (req, res) => {
     const novoEstudante = { id: estudantes.length + 1,...req.bory};
     const arrayNovoEstudante = Object.values(novoEstudante)
 
+    if(!req.body || Object.keys(novoEstudante).length === 0){
+      return res.status(400).send("A requisição estar vazia!" );
+    }
+
     if(isNaN(novoEstudante.ano) || arrayNovoEstudante.length !== 5){
       res.status(400).send(`Resposta invalida!`)
     }
@@ -90,7 +100,7 @@ app.put("/livro/:id", (req, res) => {
 
   // Listar estudantes
   app.get("/estudantes", (req,res) => {
-    
+
     if (!estudantes.length){
       return res.send(`Não há nenhum estudante cadastrado!`)
     }
@@ -102,7 +112,7 @@ app.put("/livro/:id", (req, res) => {
   app.put("/estudante/:id", (req,res) => {
     const id = parseInt(req.params.id)
     const index = estudantes.findIndex(a=>a.id === id);
-  
+
     if(index === -1){
       return res.status(404).send(`O estudante ${id} não foi encontrado!`)
     } 
