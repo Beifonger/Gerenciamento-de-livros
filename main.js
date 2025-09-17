@@ -1,11 +1,7 @@
-// importa o framework express (cria api e servidores de forma simples)
 const express = require("express");
-// define comando para chamar 
 const app = express();
-// define onde vai rodar no meu computador 
 const port = 3000;
 
-// Permite que o Express entenda JSON no corpo das requisições
 app.use(express.json())
 
 //Arrays
@@ -15,93 +11,104 @@ let alugueis = []
 
 // ================== LIVROS ================== 
 
-// pega um requisição json adiciona um id e retorna o status de 201 de cadastrado + arquivo.json
+// Cadastrar
 app.post("/livro",(req,res) => {
     const novoLivro =  {id: livros.length + 1, ...req.body}
+    const arrayNovoLivro = Object.values(novoLivro)
+    
+    if(isNaN(novoLivro.ano) || arrayNovoLivro.length !== 5){
+      res.status(400).send(`Resposta invalida!`)
+    }
+    for (let valor of arrayNovoLivro){
+      if(!valor){
+        res.status(400).send(`Resposta invalida!`)
+      }
+    }
+
     livros.push(novoLivro)
     res.status(201).json(novoLivro);
 })
 
-// listar livros cadastrados!
+// Listar
 app.get("/livros",(req,res) => {
-  // Devolve array livros como um aquivo json
+  if(!livros.length){
+    return res.send(`Não há nenhum livro cadastrado!`)
+  }
   res.json(livros)
 })
 
 
-//Atualizar (Passa para o caminho um parametro :id)
+// Atualizar
 app.put("/livro/:id", (req, res) => {
     const id = parseInt(req.params.id);
-  
-    // Encontrar o livro pelo id
     const livro = livros.find(l => l.id === id);
 
-    // se livro for undefined retorna erro 404
     if (!livro) {
       return res.status(404).send("Livro não encontrado");
-    }
-  
-    // Atualizar manualmente os campos (se input do titulo for diferente de undefined substitui variavel lipor input)
+    }  
     if (req.body.titulo !== undefined) livro.titulo = req.body.titulo;
     if (req.body.autor !== undefined) livro.autor = req.body.autor;
-    if (req.body.ano !== undefined) livro.ano = req.body.ano;
+    if (req.body.ano !== undefined && !isNaN(req.body.ano)) livro.ano = req.body.ano;
     if (req.body.genero !== undefined) livro.genero = req.body.genero;
   
-    //(obs: find não está fazendo um copia, mas uma referencia)
     res.json(livro);
   });
 
-  //Deletar
   app.delete("/livro/:id", (req, res) => {
-    // define que variavel id é igual parametro id da url
     const id = parseInt(req.params.id);
-    // substitui array livros por livros - o id que da url
+    const livro = livros.find(a=>a.id === id)
+    
+    if (!livro) {
+      return res.status(404).send("Esse livro não existe no sistema!")
+    }
+    
     livros = livros.filter(l => l.id !== id);
-    // retorna mensagem
-    res.send("Livro removido com sucesso");
+    res.status(204).send("Livro removido com sucesso");
   });
-
-  // ----> Adicionais
-
-  
 
   // ===================== ESTUDANTES =====================
 
 
   // Cadastra estudante
   app.post("/estudante", (req,res)=>{
-    // define variavel novoEstudante como um objeto com todas as informações de cadastro
     const novoEstudante = { id: estudantes.length + 1,...req.bory};
-    // push variavel novoEstudante para dentro do array 
+    const arrayNovoEstudante = Object.values(novoEstudante)
+
+    if(isNaN(novoEstudante.ano) || arrayNovoEstudante.length !== 5){
+      res.status(400).send(`Resposta invalida!`)
+    }
+    for (let valor of arrayNovoEstudante){
+      if(!valor){
+        res.status(400).send(`Resposta invalida!`)
+      }
+    }
+    
     estudantes.push(novoEstudante);
-    //restorna 201 = Criado com sucesso, e um arquivo json mostrando os dados cadastrados
     res.status(201).json(novoEstudante)
   })
 
 
   // Listar estudantes
   app.get("/estudantes", (req,res) => {
-    // retorna o array estudantes como um arquivo json
+    
+    if (!estudantes.length){
+      return res.send(`Não há nenhum estudante cadastrado!`)
+    }
     res.json(estudantes)
   });
 
 
   // Atualizar estudante
   app.put("/estudante/:id", (req,res) => {
-    // define variavel para parametro passado na url
     const id = parseInt(req.params.id)
-    // define variavel para ação(retornar o index do id que prencher a condição de ser ingual id input)
     const index = estudantes.findIndex(a=>a.id === id);
   
-    // se id for = -1 retorna erro 404 e a mensagem de texto
     if(index === -1){
       return res.status(404).send(`O estudante ${id} não foi encontrado!`)
     } 
 
-    //atualiza o array estudantes com a req
     estudantes[index] = {...estudantes[index],...req.bory}
 
-    // retorna o estudante que foi atualizado
     res.json(estudantes[index])
   })
 
